@@ -23,5 +23,4 @@ jobs:
     - name: Format check
       run: rebar3 format --verify
     - name: Run tests and verifications
-      run: DEBUG=1 DIAGNOSTIC=1 rebar3 ct # first dialyzer run always complains and 'test' alias runs dialyzer
-      # run: rebar3 test || DEBUG=1 DIAGNOSTIC=1 rebar3 test # first dialyzer run always complains and 'test' alias runs dialyzer
+      run: rebar3 test || rebar3 test # first dialyzer run always complains and 'test' alias runs dialyzer
