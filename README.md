@@ -1,6 +1,3 @@
-[![Build status](https://badge.buildkite.com/26a5139f053afe9a612a5de2354324647659f6b2d28df1e701.svg)](https://buildkite.com/adroll-group/rebar3-depup-merge-builder)
-[![Build status](https://badge.buildkite.com/c6c32e130838e7c23f7e1a0c9a6965b862e2216c116c9d88c3.svg)](https://buildkite.com/adroll-group/rebar3-depup-pr-builder)
-
 # rebar3_depup
 ## Dependency updater for rebar3 managed projects
 
