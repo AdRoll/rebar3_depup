@@ -38,9 +38,9 @@ no_replace(_) ->
 default_updates(_) ->
     {OriginalConfig, UpdatedConfig} = run_with("default_updates.config", [{replace, true}]),
     [{erliam, {git, "https://github.com/AdRoll/erliam.git", {tag, _}}},
-     {kinetic, {git, "git@github.com:AdRoll/kinetic.git", {tag, _}}},
+     {kinetic, {git, "https://github.com/AdRoll/kinetic.git", {tag, _}}},
      {lager, _},
-     {zstd, {git, "git@github.com:AdRoll/zstd-erlang.git", {tag, _}}},
+     {zstd, {git, "https://github.com/AdRoll/zstd-erlang.git", {tag, _}}},
      {erlcloud, _, {pkg, nextroll_erlcloud}}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
