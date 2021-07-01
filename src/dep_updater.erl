@@ -66,6 +66,7 @@ maybe_update_git_dep(Name, {git, Repo, {tag, Vsn}}, _Dep, Opts) ->
         lists:flatten(
             io_lib:format("git -c 'versionsort.suffix=-' ls-remote --refs --tags ~p '*.*.*'",
                           [Repo])),
+    error_logger:error_msg("~ts", [GitCmd]),
     LatestVsn =
         case rebar_utils:sh(GitCmd, [{use_stdout, true}]) of
             {ok, ""} ->
