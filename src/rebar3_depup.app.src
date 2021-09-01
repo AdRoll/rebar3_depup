@@ -7,4 +7,4 @@
   {env, []},
   {modules, []},
   {licenses, ["MIT"]},
-  {links, [{"github", "https://github.com/SemanticSugar/rebar3_depup"}]}]}.
+  {links, [{"github", "https://github.com/AdRoll/rebar3_depup"}]}]}.
