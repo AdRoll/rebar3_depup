@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.0.2](https://github.com/AdRoll/rebar3_depup/tree/0.0.2) (2021-09-01)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_depup/compare/0.0.1...0.0.2)
+
+**Merged pull requests:**
+
+- Update github action [\#6](https://github.com/AdRoll/rebar3_depup/pull/6) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Update dependencies [\#4](https://github.com/AdRoll/rebar3_depup/pull/4) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [0.0.1](https://github.com/AdRoll/rebar3_depup/tree/0.0.1) (2021-07-01)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_depup/compare/c12f6766ce8bb69cd7ade3cf99bff5ad22bc0912...0.0.1)
