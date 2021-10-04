@@ -120,10 +120,10 @@ update_deps(_Section, Data, _Profile, _State, _Opts) ->
     Data.
 
 check_and_call_updater(Section, StateKey, Deps, State, Opts) ->
-    check_rebar_state(Section, StateKey, Deps, State, Opts),
+    check_rebar_state(Section, StateKey, Deps, State),
     dep_updater:update(Deps, Opts).
 
-check_rebar_state(Section, StateKey, Deps, State, _Opts) ->
+check_rebar_state(Section, StateKey, Deps, State) ->
     SortedDeps = lists:sort(Deps),
     case lists:sort(
              rebar_state:get(State, StateKey, []))
