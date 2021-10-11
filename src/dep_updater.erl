@@ -17,9 +17,25 @@
 %%      semver requirements and all deps linked to a particular tag in a git repository.</p>
 %%      <p>If <code>#{just_hex := true} = Opts</code>, it only checks pacakges from hex.pm.</p>
 %%      <p>If <code>#{update_approx := false} = Opts</code>, it only check exact versions.</p>
+%%      <p>If <code>#{ignore := [atom,...]} = Opts</code>, the specified deps won't be updated.</p>
 -spec update(deps(), opts()) -> deps().
 update(Deps, Opts) ->
-    [update_dep(Dep, Opts) || Dep <- Deps].
+    DepsToIgnore = maps:get(ignore, Opts),
+    lists:map(fun(Dep) ->
+                 Name = dep_name(Dep),
+                 case proplists:lookup(Name, DepsToIgnore) of
+                     none ->
+                         update_dep(Dep, Opts);
+                     _Ignored ->
+                         Dep
+                 end
+              end,
+              Deps).
+
+dep_name(Dep) when is_tuple(Dep) ->
+    element(1, Dep);
+dep_name(Dep) when is_atom(Dep) ->
+    Dep.
 
 %% @see rebar_app_utils:parse_dep/5.
 update_dep(Dep = {_, _, {pkg, _}}, Opts) ->

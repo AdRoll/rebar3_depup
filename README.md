@@ -34,21 +34,32 @@ A rebar plugin to update dependencies
 Usage: rebar3 update-deps [-r [<replace>]] [-c [<rebar_config>]]
                           [-a [<update_approx>]] [-d [<just_deps>]]
                           [-p [<just_plugins>]] [-h [<just_hex>]]
+                          [-i <ignore>]
 
-  -r, --replace        Directly replace values in rebar.config. The
-                       default is to just show you what deps can be
-                       updated because this is an experimental feature and
-                       using it can mess up your formatting and comments.
+  -r, --replace        Directly replace values in rebar.config. The 
+                       default is to just show you what deps can be 
+                       updated because this is an experimental feature and 
+                       using it can mess up your formatting and comments. 
                        [default: false]
   -c, --rebar-config   File to analyze [default: rebar.config]
-  -a, --update-approx  Update requirements starting with '~>' as well as
+  -a, --update-approx  Update requirements starting with '~>' as well as 
                        the ones with a specific version. [default: true]
-  -d, --just-deps      Only update deps (i.e. ignore plugins and
+  -d, --just-deps      Only update deps (i.e. ignore plugins and 
                        project_plugins). [default: false]
-  -p, --just-plugins   Only update plugins and project_plugins (i.e.
+  -p, --just-plugins   Only update plugins and project_plugins (i.e. 
                        ignore deps). [default: false]
-  -h, --just-hex       Only update hex packages, ignore git repos.
+  -h, --just-hex       Only update hex packages, ignore git repos. 
                        [default: false]
+  -i, --ignore         Ignore dep when updating (can be repeated).
+```
+
+## Configuration
+
+To automatically ignore updates for one or more deps, add the `ignore` configuration to your `rebar.config`:
+
+```erlang
+%% Ignore any updates for eredis and lager.
+{depup, [{ignore, [eredis, lager]}]}.
 ```
 
 ## Build

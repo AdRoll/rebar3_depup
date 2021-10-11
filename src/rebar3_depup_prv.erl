@@ -47,7 +47,8 @@ opts() ->
       $h,
       "just-hex",
       {boolean, false},
-      "Only update hex packages, ignore git repos."}].
+      "Only update hex packages, ignore git repos."},
+     {ignore, $i, "ignore", atom, "Ignore dep when updating (can be repeated)."}].
 
 %% @private
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()}.
@@ -86,12 +87,16 @@ format_error(Reason) ->
 
 parse_opts(State) ->
     {Args, _} = rebar_state:command_parsed_args(State),
+    IgnoreList =
+        lists:usort(proplists:get_all_values(ignore, Args)
+                    ++ proplists:get_value(ignore, rebar_state:get(State, depup, []), [])),
     #{replace => proplists:get_value(replace, Args),
       rebar_config => proplists:get_value(rebar_config, Args),
       update_approx => proplists:get_value(update_approx, Args),
       just_deps => proplists:get_value(just_deps, Args),
       just_plugins => proplists:get_value(just_plugins, Args),
-      just_hex => proplists:get_value(just_hex, Args)}.
+      just_hex => proplists:get_value(just_hex, Args),
+      ignore => IgnoreList}.
 
 update_deps(Config, State, Opts) ->
     update_deps(Config, default, State, Opts).
