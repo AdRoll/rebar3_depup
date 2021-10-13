@@ -2,7 +2,7 @@
 
 -export([all/0]).
 -export([not_found/1, no_updates/1, no_replace/1, default_updates/1, profile_updates/1,
-         no_approx/1, just_deps/1, just_plugins/1, just_hex/1]).
+         no_approx/1, just_deps/1, just_plugins/1, just_hex/1, ignore/1, ignore_config/1]).
 
 -behaviour(ct_suite).
 
@@ -15,11 +15,13 @@ all() ->
      no_approx,
      just_deps,
      just_plugins,
-     just_hex].
+     just_hex,
+     ignore,
+     ignore_config].
 
 %% @doc Can't find not_found.config
 not_found(_) ->
-    State = init([{rebar_config, "not_found.config"}]),
+    State = init([{rebar_config, "not_found.config"}], []),
     {error, Error} = rebar3_depup_prv:do(State),
     true = string:equal(Error, "not_found.config not found"),
     ok.
@@ -128,6 +130,24 @@ just_hex(_) ->
                     -- proplists:get_value(project_plugins, OriginalConfig)),
     ok.
 
+%% @doc Don't update ignored deps on the command line
+ignore(_) ->
+    {OriginalConfig, UpdatedConfig} =
+        run_with("ignore.config", [{replace, true}, {just_deps, true}, {ignore, spillway}]),
+    [{recon, _}] =
+        lists:usort(proplists:get_value(deps, UpdatedConfig)
+                    -- proplists:get_value(deps, OriginalConfig)),
+    ok.
+
+%% @doc Don't update ignored deps in the rebar.config
+ignore_config(_) ->
+    {OriginalConfig, UpdatedConfig} =
+        run_with("ignore_config.config", [{replace, true}, {just_deps, true}]),
+    [{recon, _}] =
+        lists:usort(proplists:get_value(deps, UpdatedConfig)
+                    -- proplists:get_value(deps, OriginalConfig)),
+    ok.
+
 full_path(RebarConfig) ->
     filename:join(
         filename:dirname(
@@ -137,12 +157,13 @@ full_path(RebarConfig) ->
 run_with(RebarConfig, Opts) ->
     FullPath = full_path(RebarConfig),
     {ok, OriginalConfig} = file:consult(FullPath),
-    {ok, _NewState} = rebar3_depup_prv:do(init([{rebar_config, FullPath} | Opts])),
+    {ok, _NewState} =
+        rebar3_depup_prv:do(init([{rebar_config, FullPath} | Opts], OriginalConfig)),
     {ok, UpdatedConfig} = file:consult(FullPath),
     {OriginalConfig, UpdatedConfig}.
 
-init(Opts) ->
-    InitialState = rebar_state:new(),
+init(Opts, Config) ->
+    InitialState = rebar_state:new(Config),
     Args =
         proplists:compact(Opts
                           ++ [{rebar_config, "rebar.config"},
