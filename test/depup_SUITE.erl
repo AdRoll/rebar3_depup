@@ -134,7 +134,7 @@ just_hex(_) ->
 ignore(_) ->
     {OriginalConfig, UpdatedConfig} =
         run_with("ignore.config", [{replace, true}, {just_deps, true}, {ignore, spillway}]),
-    [{recon, _}] =
+    [{rebar3_depup, _}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
     ok.
@@ -143,7 +143,7 @@ ignore(_) ->
 ignore_config(_) ->
     {OriginalConfig, UpdatedConfig} =
         run_with("ignore_config.config", [{replace, true}, {just_deps, true}]),
-    [{recon, _}] =
+    [{rebar3_hank, _}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
     ok.
