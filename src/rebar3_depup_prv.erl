@@ -49,7 +49,11 @@ opts() ->
       {boolean, false},
       "Only update hex packages, ignore git repos."},
      {ignore, $i, "ignore", atom, "Ignore dep when updating (can be repeated)."},
-     {only, $o, "only", {atom, none}, "Only update if the specified SemVer component (major, minor, or patch) has changed."}].
+     {only,
+      $o,
+      "only",
+      {atom, none},
+      "Only update if the specified SemVer component (major, minor, or patch) has changed."}].
 
 %% @private
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()}.
