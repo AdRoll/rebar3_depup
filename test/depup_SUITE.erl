@@ -2,7 +2,8 @@
 
 -export([all/0]).
 -export([not_found/1, no_updates/1, no_replace/1, default_updates/1, profile_updates/1,
-         no_approx/1, just_deps/1, just_plugins/1, just_hex/1, ignore/1, ignore_config/1]).
+         no_approx/1, just_deps/1, just_plugins/1, just_hex/1, ignore/1, ignore_config/1,
+         only_patch/1, only_minor/1, only_major/1]).
 
 -behaviour(ct_suite).
 
@@ -17,7 +18,10 @@ all() ->
      just_plugins,
      just_hex,
      ignore,
-     ignore_config].
+     ignore_config,
+     only_patch,
+     only_minor,
+     only_major].
 
 %% @doc Can't find not_found.config
 not_found(_) ->
@@ -144,6 +148,33 @@ ignore_config(_) ->
     {OriginalConfig, UpdatedConfig} =
         run_with("ignore_config.config", [{replace, true}, {just_deps, true}]),
     [{rebar3_hank, _}] =
+        lists:usort(proplists:get_value(deps, UpdatedConfig)
+                    -- proplists:get_value(deps, OriginalConfig)),
+    ok.
+
+%% @doc Update if the patch version is the only change
+only_patch(_) ->
+    {OriginalConfig, UpdatedConfig} =
+        run_with("only_patch.config", [{replace, true}, {just_deps, true}, {only, patch}]),
+    [{recon, _}, {spillway, _}] =
+        lists:usort(proplists:get_value(deps, UpdatedConfig)
+                    -- proplists:get_value(deps, OriginalConfig)),
+    ok.
+
+%% @doc Update if the minor version is the only change
+only_minor(_) ->
+    {OriginalConfig, UpdatedConfig} =
+        run_with("only_minor.config", [{replace, true}, {just_deps, true}, {only, minor}]),
+    [{recon, _}, {spillway, _}] =
+        lists:usort(proplists:get_value(deps, UpdatedConfig)
+                    -- proplists:get_value(deps, OriginalConfig)),
+    ok.
+
+%% @doc Update only if the version follows SemVer semantics
+only_major(_) ->
+    {OriginalConfig, UpdatedConfig} =
+        run_with("only_major.config", [{replace, true}, {just_deps, true}, {only, major}]),
+    [{recon, _}, {spillway, _}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
     ok.

@@ -34,7 +34,7 @@ A rebar plugin to update dependencies
 Usage: rebar3 update-deps [-r [<replace>]] [-c [<rebar_config>]]
                           [-a [<update_approx>]] [-d [<just_deps>]]
                           [-p [<just_plugins>]] [-h [<just_hex>]]
-                          [-i <ignore>]
+                          [-i <ignore>] [-o [<only>]]
 
   -r, --replace        Directly replace values in rebar.config. The 
                        default is to just show you what deps can be 
@@ -51,6 +51,9 @@ Usage: rebar3 update-deps [-r [<replace>]] [-c [<rebar_config>]]
   -h, --just-hex       Only update hex packages, ignore git repos. 
                        [default: false]
   -i, --ignore         Ignore dep when updating (can be repeated).
+  -o, --only           Only update if the specified SemVer component 
+                       (major, minor, or patch) has changed. [default: 
+                       none]
 ```
 
 ## Configuration
