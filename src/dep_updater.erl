@@ -108,16 +108,14 @@ parse_versions(Current, Latest) ->
                 {ok, LatestParsed} ->
                     {ok, CurrentParsed, LatestParsed};
                 {error, Error} ->
-                    rebar_api:debug("Latest version (~p) isn't SemVer parseable", [Latest]),
                     {error, Error}
             end;
         {error, Error} ->
-            rebar_api:debug("Current verion (~p) isn't SemVer parseable", [Current]),
             {error, Error}
     end.
 
 check_only(Current, Latest, _) when Current =:= Latest ->
-    Latest;
+    {ok, Latest};
 check_only(Current, Latest, #{only := patch}) ->
     case parse_versions(Current, Latest) of
         {ok,
@@ -125,37 +123,36 @@ check_only(Current, Latest, #{only := patch}) ->
          #{major := LatestMajor, minor := LatestMinor}} ->
             case CurrentMajor =:= LatestMajor andalso CurrentMinor =:= LatestMinor of
                 true ->
-                    Latest;
+                    {ok, Latest};
                 false ->
-                    Current
+                    {ok, Current}
             end;
-        {error, _Error} ->
-            rebar_api:warn("Version isn't SemVer parseable"),
-            Current
+        {error, Error} ->
+            {error, Error}
     end;
 check_only(Current, Latest, #{only := minor}) ->
     case parse_versions(Current, Latest) of
         {ok, #{major := CurrentMajor}, #{major := LatestMajor}} ->
             case CurrentMajor =:= LatestMajor of
                 true ->
-                    Latest;
+                    {ok, Latest};
                 false ->
-                    Current
+                    {ok, Current}
             end;
-        {error, _Error} ->
-            rebar_api:warn("Version isn't SemVer parseable"),
-            Current
+        {error, Error} ->
+            {error, Error}
     end;
 check_only(Current, Latest, #{only := major}) ->
     case parse_versions(Current, Latest) of
         {ok, _, _} ->
-            Latest;
-        {error, _Error} ->
-            rebar_api:warn("Version isn't SemVer parseable"),
-            Current
+            {ok, Latest};
+        {error, Error} ->
+            {error, Error}
     end;
+check_only(_Current, Latest, #{only := none}) ->
+    {ok, Latest};
 check_only(_Current, Latest, _) ->
-    Latest.
+    {ok, Latest}.
 
 -spec latest_version(atom(), binary(), binary(), opts()) -> binary();
                     (atom(), string(), binary(), opts()) -> string().
@@ -178,7 +175,15 @@ latest_version(Name, <<"~> ", Vsn/binary>>, NewVsn, Opts = #{update_approx := tr
 latest_version(_Name, <<"~> ", Vsn/binary>>, _NewVsn, _Opts) ->
     <<"~> ", Vsn/binary>>;
 latest_version(Name, Vsn, NewVsn, Opts) ->
-    CheckedVsn = check_only(Vsn, NewVsn, Opts),
+    CheckedVsn =
+        case check_only(Vsn, NewVsn, Opts) of
+            {ok, Version} ->
+                Version;
+            {error, Error} ->
+                rebar_api:info("~p's version ~p can't be parsed, keeping ~p: ~p",
+                               [Name, NewVsn, Vsn, Error]),
+                Vsn
+        end,
     case verl:compare(CheckedVsn, Vsn) of
         gt ->
             rebar_api:info("~p can be updated from ~ts to ~ts", [Name, Vsn, CheckedVsn]),

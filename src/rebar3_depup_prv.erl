@@ -95,6 +95,7 @@ parse_opts(State) ->
     IgnoreList =
         lists:usort(proplists:get_all_values(ignore, Args)
                     ++ proplists:get_value(ignore, rebar_state:get(State, depup, []), [])),
+    Only = proplists:get_value(only, rebar_state:get(State, depup, []), none),
     #{replace => proplists:get_value(replace, Args),
       rebar_config => proplists:get_value(rebar_config, Args),
       update_approx => proplists:get_value(update_approx, Args),
@@ -102,7 +103,7 @@ parse_opts(State) ->
       just_plugins => proplists:get_value(just_plugins, Args),
       just_hex => proplists:get_value(just_hex, Args),
       ignore => IgnoreList,
-      only => proplists:get_value(only, Args)}.
+      only => proplists:get_value(only, Args, Only)}.
 
 update_deps(Config, State, Opts) ->
     update_deps(Config, default, State, Opts).

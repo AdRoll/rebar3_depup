@@ -3,7 +3,7 @@
 -export([all/0]).
 -export([not_found/1, no_updates/1, no_replace/1, default_updates/1, profile_updates/1,
          no_approx/1, just_deps/1, just_plugins/1, just_hex/1, ignore/1, ignore_config/1,
-         only_patch/1, only_minor/1, only_major/1]).
+         only_patch/1, only_minor/1, only_major/1, only_override_config/1]).
 
 -behaviour(ct_suite).
 
@@ -21,7 +21,8 @@ all() ->
      ignore_config,
      only_patch,
      only_minor,
-     only_major].
+     only_major,
+     only_override_config].
 
 %% @doc Can't find not_found.config
 not_found(_) ->
@@ -154,29 +155,90 @@ ignore_config(_) ->
 
 %% @doc Update if the patch version is the only change
 only_patch(_) ->
+    meck:new(dep_hex, [passthrough]),
+    meck:expect(dep_hex,
+                get_latest_vsn,
+                %% will update from 1.1.1 to 1.1.3
+                fun (will_update) ->
+                        <<"1.1.3">>;
+                    %% won't update from 1.1.1 to 1.3.3
+                    (wont_update) ->
+                        <<"1.3.3">>;
+                    (Name) ->
+                        meck:passthrough([Name])
+                end),
     {OriginalConfig, UpdatedConfig} =
-        run_with("only_patch.config", [{replace, true}, {just_deps, true}, {only, patch}]),
-    [{recon, _}, {spillway, _}] =
+        run_with("only_patch.config", [{replace, true}, {just_deps, true}]),
+    [{will_update, _}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
+    meck:unload(dep_hex),
     ok.
 
-%% @doc Update if the minor version is the only change
+%% @doc Update if the minor (or patch) version is the only change
 only_minor(_) ->
+    meck:new(dep_hex, [passthrough]),
+    meck:expect(dep_hex,
+                get_latest_vsn,
+                %% will update from 1.1.1 to 1.2.1
+                fun (will_update) ->
+                        <<"1.2.1">>;
+                    %% won't update from 1.1.1 to 2.1.1
+                    (wont_update) ->
+                        <<"2.1.1">>;
+                    (Name) ->
+                        meck:passthrough([Name])
+                end),
     {OriginalConfig, UpdatedConfig} =
         run_with("only_minor.config", [{replace, true}, {just_deps, true}, {only, minor}]),
-    [{recon, _}, {spillway, _}] =
+    [{will_update, _}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
+    meck:unload(dep_hex),
     ok.
 
 %% @doc Update only if the version follows SemVer semantics
 only_major(_) ->
+    meck:new(dep_hex, [passthrough]),
+    meck:expect(dep_hex,
+                get_latest_vsn,
+                %% will update from 1.1.1 to 2.2.1
+                fun (will_update) ->
+                        <<"2.2.1">>;
+                    %% won't update from 1.1.1 to unparsable version
+                    (wont_update) ->
+                        <<"not-semver">>;
+                    (Name) ->
+                        meck:passthrough([Name])
+                end),
     {OriginalConfig, UpdatedConfig} =
         run_with("only_major.config", [{replace, true}, {just_deps, true}, {only, major}]),
-    [{recon, _}, {spillway, _}] =
+    [{will_update, _}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
+    meck:unload(dep_hex),
+    ok.
+
+%% @doc Update if the only flag overrides the config options
+only_override_config(_) ->
+    meck:new(dep_hex, [passthrough]),
+    meck:expect(dep_hex,
+                get_latest_vsn,
+                %% will update from 1.1.1 to 1.1.3
+                fun (will_update) ->
+                        <<"1.1.3">>;
+                    %% willt update from 1.1.1 to 2.7.2
+                    (wont_update) ->
+                        <<"2.7.2">>;
+                    (Name) ->
+                        meck:passthrough([Name])
+                end),
+    {OriginalConfig, UpdatedConfig} =
+        run_with("only_override.config", [{replace, true}, {just_deps, true}, {only, none}]),
+    [{will_update, _}, {wont_update, _}] =
+        lists:usort(proplists:get_value(deps, UpdatedConfig)
+                    -- proplists:get_value(deps, OriginalConfig)),
+    meck:unload(dep_hex),
     ok.
 
 full_path(RebarConfig) ->
