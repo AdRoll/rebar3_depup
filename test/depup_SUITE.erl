@@ -168,7 +168,7 @@ only_patch(_) ->
                         meck:passthrough([Name])
                 end),
     {OriginalConfig, UpdatedConfig} =
-        run_with("only_patch.config", [{replace, true}, {just_deps, true} ]),
+        run_with("only_patch.config", [{replace, true}, {just_deps, true}]),
     [{will_update, _}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
@@ -234,7 +234,7 @@ only_override_config(_) ->
                         meck:passthrough([Name])
                 end),
     {OriginalConfig, UpdatedConfig} =
-        run_with("only_override.config", [{replace, true}, {just_deps, true}, {only, none} ]),
+        run_with("only_override.config", [{replace, true}, {just_deps, true}, {only, none}]),
     [{will_update, _}, {wont_update, _}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
