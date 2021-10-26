@@ -65,6 +65,20 @@ To automatically ignore updates for one or more deps, add the `ignore` configura
 {depup, [{ignore, [eredis, lager]}]}.
 ```
 
+To only update if the specified SemVer component has changed, use `only`. Note that this configuration can
+be overridden by the `-o/--only` command-line argument:
+
+```erlang
+%% Ignore any updates that change more than the minor (and patch) version of any dependency.
+{depup, [{only, minor}].
+```
+
+With the above configuration in your `rebar.config`, running the following will update all dependencies by overriding `minor` with `none`:
+
+```bash
+rebar3 update-deps --only none
+```
+
 ## Build
 
 ```bash
