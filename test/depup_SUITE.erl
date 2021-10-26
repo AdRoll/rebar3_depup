@@ -3,7 +3,7 @@
 -export([all/0]).
 -export([not_found/1, no_updates/1, no_replace/1, default_updates/1, profile_updates/1,
          no_approx/1, just_deps/1, just_plugins/1, just_hex/1, ignore/1, ignore_config/1,
-         only_patch/1, only_minor/1, only_major/1]).
+         only_patch/1, only_minor/1, only_major/1, only_override_config/1]).
 
 -behaviour(ct_suite).
 
@@ -21,7 +21,8 @@ all() ->
      ignore_config,
      only_patch,
      only_minor,
-     only_major].
+     only_major,
+     only_override_config].
 
 %% @doc Can't find not_found.config
 not_found(_) ->
@@ -167,7 +168,7 @@ only_patch(_) ->
                         meck:passthrough([Name])
                 end),
     {OriginalConfig, UpdatedConfig} =
-        run_with("only_patch.config", [{replace, true}, {just_deps, true}, {only, patch}]),
+        run_with("only_patch.config", [{replace, true}, {just_deps, true} ]),
     [{will_update, _}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
@@ -213,6 +214,28 @@ only_major(_) ->
     {OriginalConfig, UpdatedConfig} =
         run_with("only_major.config", [{replace, true}, {just_deps, true}, {only, major}]),
     [{will_update, _}] =
+        lists:usort(proplists:get_value(deps, UpdatedConfig)
+                    -- proplists:get_value(deps, OriginalConfig)),
+    meck:unload(dep_hex),
+    ok.
+
+%% @doc Update if the only flag overrides the config options
+only_override_config(_) ->
+    meck:new(dep_hex, [passthrough]),
+    meck:expect(dep_hex,
+                get_latest_vsn,
+                %% will update from 1.1.1 to 1.1.3
+                fun (will_update) ->
+                        <<"1.1.3">>;
+                    %% willt update from 1.1.1 to 2.7.2
+                    (wont_update) ->
+                        <<"2.7.2">>;
+                    (Name) ->
+                        meck:passthrough([Name])
+                end),
+    {OriginalConfig, UpdatedConfig} =
+        run_with("only_override.config", [{replace, true}, {just_deps, true}, {only, none} ]),
+    [{will_update, _}, {wont_update, _}] =
         lists:usort(proplists:get_value(deps, UpdatedConfig)
                     -- proplists:get_value(deps, OriginalConfig)),
     meck:unload(dep_hex),
