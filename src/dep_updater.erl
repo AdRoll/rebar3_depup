@@ -149,6 +149,8 @@ check_only(Current, Latest, #{only := major}) ->
         {error, Error} ->
             {error, Error}
     end;
+check_only(_Current, Latest, #{only := none}) ->
+    {ok, Latest};
 check_only(_Current, Latest, _) ->
     {ok, Latest}.
 
