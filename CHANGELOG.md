@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.0](https://github.com/AdRoll/rebar3_depup/tree/0.2.0) (2021-10-27)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_depup/compare/0.1.0...0.2.0)
+
+**Implemented enhancements:**
+
+- Add config to update only patch, minor, major, or all \(regardless of semver\) [\#2](https://github.com/AdRoll/rebar3_depup/issues/2)
+
+**Merged pull requests:**
+
+- Support for only, round 2 [\#16](https://github.com/AdRoll/rebar3_depup/pull/16) ([joshrotenberg](https://github.com/joshrotenberg))
+- Update dependencies [\#15](https://github.com/AdRoll/rebar3_depup/pull/15) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Disable dont\_repeat\_yourself in tests [\#14](https://github.com/AdRoll/rebar3_depup/pull/14) ([joshrotenberg](https://github.com/joshrotenberg))
+- Support for only argument [\#13](https://github.com/AdRoll/rebar3_depup/pull/13) ([joshrotenberg](https://github.com/joshrotenberg))
+- Update dependencies [\#12](https://github.com/AdRoll/rebar3_depup/pull/12) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [0.1.0](https://github.com/AdRoll/rebar3_depup/tree/0.1.0) (2021-10-13)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_depup/compare/0.0.2...0.1.0)
