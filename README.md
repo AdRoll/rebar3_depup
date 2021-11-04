@@ -8,7 +8,7 @@
 Add the plugin to your rebar.config:
 
 ```erlang
-{project_plugins, [rebar3_depup]}
+{project_plugins, [rebar3_depup]}.
 ```
 
 You can add it to your _global `rebar.config`_ (e.g. `~/.config/rebar3/rebar.config`).
