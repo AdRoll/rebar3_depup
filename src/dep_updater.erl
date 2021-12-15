@@ -12,12 +12,15 @@
 
 -export([update/2]).
 
-%% @doc Updates each updateable dependency in Deps.
-%%      <p>It will update all hex packages with fixed or similar (<code>~></code>)
-%%      semver requirements and all deps linked to a particular tag in a git repository.</p>
-%%      <p>If <code>#{just_hex := true} = Opts</code>, it only checks pacakges from hex.pm.</p>
-%%      <p>If <code>#{update_approx := false} = Opts</code>, it only check exact versions.</p>
-%%      <p>If <code>#{ignore := [atom,...]} = Opts</code>, the specified deps won't be updated.</p>
+%% @doc Updates each updatable dependency in Deps.
+%%      <p> It will update all hex packages with fixed or similar (<code>~></code>)
+%%      semver requirements and all deps linked to a particular tag in a git repository. </p>
+%%      <p> If <code>#{just_hex := true} = Opts</code>,
+%%          it only checks pacakges from hex.pm. </p>
+%%      <p> If <code>#{update_approx := false} = Opts</code>,
+%%          it only check exact versions. </p>
+%%      <p> If <code>#{ignore := [atom,...]} = Opts</code>,
+%%          the specified deps won't be updated. </p>
 -spec update(deps(), opts()) -> deps().
 update(Deps, Opts) ->
     DepsToIgnore = maps:get(ignore, Opts),
