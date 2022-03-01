@@ -16,7 +16,7 @@
 %%      <p> It will update all hex packages with fixed or similar (<code>~></code>)
 %%      semver requirements and all deps linked to a particular tag in a git repository. </p>
 %%      <p> If <code>#{just_hex := true} = Opts</code>,
-%%          it only checks pacakges from hex.pm. </p>
+%%          it only checks packages from hex.pm. </p>
 %%      <p> If <code>#{update_approx := false} = Opts</code>,
 %%          it only check exact versions. </p>
 %%      <p> If <code>#{ignore := [atom,...]} = Opts</code>,
@@ -62,7 +62,7 @@ update_dep(Dep = {Name, Source, RepoOpts}, Opts)
     when is_tuple(Source), is_list(RepoOpts) ->
     maybe_update_git_dep(Name, Source, Dep, Opts);
 update_dep(Dep, _Opts) ->
-    rebar_api:warn("Unparseable dependency: ~p", [Dep]),
+    rebar_api:warn("Unparsable dependency: ~p", [Dep]),
     Dep.
 
 maybe_update_hex_dep({Name, Vsn, {pkg, Package}}, Opts) ->
