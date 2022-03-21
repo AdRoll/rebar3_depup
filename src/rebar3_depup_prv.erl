@@ -66,7 +66,7 @@ do(State) ->
             {error, io_lib:format("~ts not found", [RebarConfig])};
         {ok, Config} ->
             rebar_api:info("Looking for dependencies to update in rebar.config...", []),
-            case update_deps(Config, State, Opts) of
+            case update_deps(Config, Opts) of
                 Config ->
                     rebar_api:info("Nothing to update.", []),
                     {ok, State};
@@ -105,51 +105,30 @@ parse_opts(State) ->
       ignore => IgnoreList,
       only => proplists:get_value(only, Args, Only)}.
 
-update_deps(Config, State, Opts) ->
-    update_deps(Config, default, State, Opts).
+update_deps(Config, Opts) ->
+    update_deps(Config, default, Opts).
 
-update_deps(Config, Profile, State, Opts) ->
-    [{Section, update_deps(Section, Data, Profile, State, Opts)}
-     || {Section, Data} <- Config].
+update_deps(Config, Profile, Opts) ->
+    [{Section, update_deps(Section, Data, Profile, Opts)} || {Section, Data} <- Config].
 
-update_deps(deps, [], _Profile, _State, _Opts) ->
+update_deps(deps, [], _Profile, _Opts) ->
     [];
-update_deps(deps, Deps, _Profile, _State, #{just_plugins := true}) ->
+update_deps(deps, Deps, _Profile, #{just_plugins := true}) ->
     Deps;
-update_deps(deps, Deps, Profile, State, Opts) ->
-    check_and_call_updater(deps, {deps, Profile}, Deps, State, Opts);
-update_deps(plugins, Deps, _Profile, _State, #{just_deps := true}) ->
+update_deps(deps, Deps, _Profile, Opts) ->
+    dep_updater:update(Deps, Opts);
+update_deps(plugins, Deps, _Profile, #{just_deps := true}) ->
     Deps;
-update_deps(plugins, Deps, Profile, State, Opts) ->
-    check_and_call_updater(plugins, {plugins, Profile}, Deps, State, Opts);
-update_deps(project_plugins, Deps, _Profile, _State, #{just_deps := true}) ->
+update_deps(plugins, Deps, _Profile, Opts) ->
+    dep_updater:update(Deps, Opts);
+update_deps(project_plugins, Deps, _Profile, #{just_deps := true}) ->
     Deps;
-update_deps(project_plugins, Deps, Profile, State, Opts) ->
-    check_and_call_updater(project_plugins, {project_plugins, Profile}, Deps, State, Opts);
-update_deps(profiles, Profiles, default, State, Opts) ->
-    [{Profile, update_deps(Config, Profile, State, Opts)} || {Profile, Config} <- Profiles];
-update_deps(_Section, Data, _Profile, _State, _Opts) ->
+update_deps(project_plugins, Deps, _Profile, Opts) ->
+    dep_updater:update(Deps, Opts);
+update_deps(profiles, Profiles, default, Opts) ->
+    [{Profile, update_deps(Config, Profile, Opts)} || {Profile, Config} <- Profiles];
+update_deps(_Section, Data, _Profile, _Opts) ->
     Data.
-
-check_and_call_updater(Section, StateKey, Deps, State, Opts) ->
-    check_rebar_state(Section, StateKey, Deps, State),
-    dep_updater:update(Deps, Opts).
-
-check_rebar_state(Section, StateKey, Deps, State) ->
-    SortedDeps = lists:sort(Deps),
-    case lists:sort(
-             proplists:delete(rebar3_depup, rebar_state:get(State, StateKey, [])))
-    of
-        [] ->
-            rebar_api:debug("~p not found in rebar_state", [StateKey]);
-        SortedDeps ->
-            ok;
-        OtherDeps ->
-            rebar_api:warn("Found a discrepancy in ~p with rebar_state (~p)."
-                           " You may want to run rebar3 upgrade or rebar3 unlock.",
-                           [Section, StateKey]),
-            rebar_api:debug("Sorted: ~p\nOther: ~p", [SortedDeps, OtherDeps])
-    end.
 
 dump_or_print(Sections, RebarConfig, #{replace := true}) ->
     Formatted = format(Sections, RebarConfig, erl_comment_scan:file(RebarConfig)),
