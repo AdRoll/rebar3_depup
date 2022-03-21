@@ -179,4 +179,4 @@ fake_ast(RebarConfig, Sections) ->
     end.
 
 clean(String) ->
-    re:replace(String, "(^|\n)dEl3tE_me[(][)] -> ?", "", [global]).
+    re:replace(String, "(^|\n)dEl3tE_me[(][)] -> ?", "", [unicode, global]).
