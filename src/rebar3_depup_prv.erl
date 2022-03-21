@@ -148,7 +148,7 @@ check_rebar_state(Section, StateKey, Deps, State) ->
             rebar_api:warn("Found a discrepancy in ~p with rebar_state (~p)."
                            " You may want to run rebar3 upgrade or rebar3 unlock.",
                            [Section, StateKey]),
-            rebar_api:debug("SortedDeps = ~p\nOtherDeps  = ~p", [SortedDeps, OtherDeps])
+            rebar_api:debug("Sorted: ~p\nOther: ~p", [SortedDeps, OtherDeps])
     end.
 
 dump_or_print(Sections, RebarConfig, #{replace := true}) ->
