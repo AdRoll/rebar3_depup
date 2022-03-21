@@ -138,16 +138,17 @@ check_and_call_updater(Section, StateKey, Deps, State, Opts) ->
 check_rebar_state(Section, StateKey, Deps, State) ->
     SortedDeps = lists:sort(Deps),
     case lists:sort(
-             rebar_state:get(State, StateKey, []))
+             proplists:delete(rebar3_depup, rebar_state:get(State, StateKey, [])))
     of
         [] ->
             rebar_api:debug("~p not found in rebar_state", [StateKey]);
         SortedDeps ->
             ok;
-        _OtherDeps ->
+        OtherDeps ->
             rebar_api:warn("Found a discrepancy in ~p with rebar_state (~p)."
                            " You may want to run rebar3 upgrade or rebar3 unlock.",
-                           [Section, StateKey])
+                           [Section, StateKey]),
+            rebar_api:debug("SortedDeps = ~p\nOtherDeps  = ~p", [SortedDeps, OtherDeps])
     end.
 
 dump_or_print(Sections, RebarConfig, #{replace := true}) ->
