@@ -80,13 +80,13 @@ maybe_update_hex_dep(Vsn, Package, Opts) ->
     end.
 
 %% NOTE: This function only updates git deps when they use valid semver tags.
-maybe_update_git_dep(Name, {git, Repo, {tag, Vsn}}, _Dep, Opts) ->
+maybe_update_git_dep(Name, {git, Repo, {tag, Vsn}}, Dep, Opts) ->
     GitCmd =
         lists:flatten(
             io_lib:format("git -c 'versionsort.suffix=-' ls-remote --refs --tags ~p '*.*.*'",
                           [Repo])),
     LatestVsn =
-        case rebar_utils:sh(GitCmd, [use_stdout]) of
+        case rebar_utils:sh(GitCmd, [return_on_error]) of
             {ok, ""} ->
                 rebar_api:info("Latest version for ~p not found, keeping ~ts", [Name, Vsn]),
                 Vsn;
@@ -97,7 +97,10 @@ maybe_update_git_dep(Name, {git, Repo, {tag, Vsn}}, _Dep, Opts) ->
                 NewVsn =
                     lists:last(
                         string:tokens(LastTag, [$/])),
-                latest_version(Name, Vsn, iolist_to_binary(NewVsn), Opts)
+                latest_version(Name, Vsn, iolist_to_binary(NewVsn), Opts);
+            {error, {_Code, Msg}} ->
+                rebar_api:warn(Msg ++ "===> Skipping ~p", [Name]),
+                Dep
         end,
     {Name, {git, Repo, {tag, LatestVsn}}};
 maybe_update_git_dep(Name, _Source, Dep, _Opts) ->
