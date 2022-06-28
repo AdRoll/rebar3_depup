@@ -83,8 +83,7 @@ maybe_update_hex_dep(Vsn, Package, Opts) ->
 maybe_update_git_dep(Name, {git, Repo, {tag, Vsn}}, Dep, Opts) ->
     GitCmd =
         lists:flatten(
-            io_lib:format("git -c 'versionsort.suffix=-' ls-remote --refs --tags ~p '*.*.*'",
-                          [Repo])),
+            io_lib:format("git -c ls-remote --sort=v:refname --refs --tags ~p '*.*.*'", [Repo])),
     LatestVsn =
         case rebar_utils:sh(GitCmd, [return_on_error]) of
             {ok, ""} ->
