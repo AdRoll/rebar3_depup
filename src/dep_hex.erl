@@ -10,7 +10,7 @@
 -spec get_latest_vsn(atom()) -> binary() | undefined.
 get_latest_vsn(Name) ->
     case hex_repo:get_package(config(), atom_to_binary(Name, utf8)) of
-        {ok, {200, _, [_ | _] = Versions}} ->
+        {ok, {200, _, #{releases := [_ | _] = Versions}}} ->
             lists:last([Version || #{version := Version} <- Versions]);
         Other ->
             rebar_api:warn("Couldn't fetch latest version of ~p from hex.pm:\n~p", [Name, Other]),
