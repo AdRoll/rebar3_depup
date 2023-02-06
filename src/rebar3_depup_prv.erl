@@ -56,7 +56,7 @@ opts() ->
       "Only update if the specified SemVer component (major, minor, or patch) has changed."}].
 
 %% @private
--spec do(rebar_state:t()) -> {ok, rebar_state:t()}.
+-spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, iodata()}.
 do(State) ->
     Opts = parse_opts(State),
     rebar_api:debug("Opts: ~p", [Opts]),
@@ -87,8 +87,14 @@ do(State) ->
 %% @private
 -spec format_error(any()) -> binary().
 format_error(Reason) ->
-    unicode:characters_to_binary(
-        io_lib:format("~tp", [Reason])).
+    case unicode:characters_to_binary(
+             io_lib:format("~tp", [Reason]))
+    of
+        {_Error, Bin, _Rest} ->
+            Bin;
+        Bin ->
+            Bin
+    end.
 
 parse_opts(State) ->
     {Args, _} = rebar_state:command_parsed_args(State),
