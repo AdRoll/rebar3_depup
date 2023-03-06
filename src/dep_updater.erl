@@ -41,24 +41,24 @@ dep_name(Dep) when is_atom(Dep) ->
     Dep.
 
 %% @see rebar_app_utils:parse_dep/5.
-update_dep(Dep = {_, _, {pkg, _}}, Opts) ->
+update_dep({_, _, {pkg, _}} = Dep, Opts) ->
     maybe_update_hex_dep(Dep, Opts);
-update_dep(Dep = {_, {pkg, _}}, _Opts) ->
+update_dep({_, {pkg, _}} = Dep, _Opts) ->
     Dep; %% Already using the latest version
-update_dep(Dep = {_, Vsn}, Opts) when is_list(Vsn); is_binary(Vsn) ->
+update_dep({_, Vsn} = Dep, Opts) when is_list(Vsn); is_binary(Vsn) ->
     maybe_update_hex_dep(Dep, Opts);
 update_dep(Dep, _Opts) when is_atom(Dep); is_binary(Dep) ->
     Dep; %% Already using the latest version
 update_dep(Dep, #{just_hex := true}) ->
     Dep;
-update_dep(Dep = {Name, Source}, Opts) when is_tuple(Source) ->
+update_dep({Name, Source} = Dep, Opts) when is_tuple(Source) ->
     maybe_update_git_dep(Name, Source, Dep, Opts);
-update_dep(Dep = {Name, _Vsn, Source}, Opts) when is_tuple(Source) ->
+update_dep({Name, _Vsn, Source} = Dep, Opts) when is_tuple(Source) ->
     maybe_update_git_dep(Name, Source, Dep, Opts);
-update_dep(Dep = {Name, _Vsn, Source, RepoOpts}, Opts)
+update_dep({Name, _Vsn, Source, RepoOpts} = Dep, Opts)
     when is_tuple(Source), is_list(RepoOpts) ->
     maybe_update_git_dep(Name, Source, Dep, Opts);
-update_dep(Dep = {Name, Source, RepoOpts}, Opts)
+update_dep({Name, Source, RepoOpts} = Dep, Opts)
     when is_tuple(Source), is_list(RepoOpts) ->
     maybe_update_git_dep(Name, Source, Dep, Opts);
 update_dep(Dep, _Opts) ->
@@ -173,7 +173,7 @@ latest_version(Name, <<"v", Vsn/binary>>, <<"v", NewVsn/binary>>, Opts) ->
     %% Special case that we use a lot
     LatestVsn = latest_version(Name, Vsn, NewVsn, Opts),
     <<"v", LatestVsn/binary>>;
-latest_version(Name, <<"~> ", Vsn/binary>>, NewVsn, Opts = #{update_approx := true}) ->
+latest_version(Name, <<"~> ", Vsn/binary>>, NewVsn, #{update_approx := true} = Opts) ->
     %% Special case that we use a lot
     LatestVsn = latest_version(Name, Vsn, NewVsn, Opts),
     <<"~> ", LatestVsn/binary>>;
