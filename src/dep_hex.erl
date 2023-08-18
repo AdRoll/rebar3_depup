@@ -4,18 +4,19 @@
 -behaviour(hex_http).
 
 -export([request/5]).
--export([get_latest_vsn/1]).
+-export([get_latest_vsn/2]).
 
 %% @doc Returns the latest version of a package in hex.pm
--spec get_latest_vsn(atom()) -> binary() | undefined.
-get_latest_vsn(Name) ->
+-spec get_latest_vsn(atom(), atom()) -> binary() | undefined.
+get_latest_vsn(Name, Profile) ->
     case hex_repo:get_package(config(), atom_to_binary(Name, utf8)) of
         {ok, {200, _, #{releases := [_ | _] = Versions}}} ->
             lists:last([Version || #{version := Version} <- Versions]);
         {ok, {200, _, Versions}} ->
             lists:last([Version || #{version := Version} <- Versions]);
         Other ->
-            rebar_api:warn("Couldn't fetch latest version of ~p from hex.pm:\n~p", [Name, Other]),
+            rebar_api:warn("Couldn't fetch latest version of ~p (profile ~p) from hex.pm:\n~p",
+                           [Name, Profile, Other]),
             undefined
     end.
 
