@@ -159,13 +159,13 @@ only_patch(_) ->
     meck:expect(dep_hex,
                 get_latest_vsn,
                 %% will update from 1.1.1 to 1.1.3
-                fun (will_update) ->
+                fun (will_update, _Profile) ->
                         <<"1.1.3">>;
                     %% won't update from 1.1.1 to 1.3.3
-                    (wont_update) ->
+                    (wont_update, _Profile) ->
                         <<"1.3.3">>;
-                    (Name) ->
-                        meck:passthrough([Name])
+                    (Name, Profile) ->
+                        meck:passthrough([Name, Profile])
                 end),
     {OriginalConfig, UpdatedConfig} =
         run_with("only_patch.config", [{replace, true}, {just_deps, true}]),
@@ -181,13 +181,13 @@ only_minor(_) ->
     meck:expect(dep_hex,
                 get_latest_vsn,
                 %% will update from 1.1.1 to 1.2.1
-                fun (will_update) ->
+                fun (will_update, _Profile) ->
                         <<"1.2.1">>;
                     %% won't update from 1.1.1 to 2.1.1
-                    (wont_update) ->
+                    (wont_update, _Profile) ->
                         <<"2.1.1">>;
-                    (Name) ->
-                        meck:passthrough([Name])
+                    (Name, Profile) ->
+                        meck:passthrough([Name, Profile])
                 end),
     {OriginalConfig, UpdatedConfig} =
         run_with("only_minor.config", [{replace, true}, {just_deps, true}, {only, minor}]),
@@ -203,13 +203,13 @@ only_major(_) ->
     meck:expect(dep_hex,
                 get_latest_vsn,
                 %% will update from 1.1.1 to 2.2.1
-                fun (will_update) ->
+                fun (will_update, _Profile) ->
                         <<"2.2.1">>;
                     %% won't update from 1.1.1 to unparsable version
-                    (wont_update) ->
+                    (wont_update, _Profile) ->
                         <<"not-semver">>;
-                    (Name) ->
-                        meck:passthrough([Name])
+                    (Name, Profile) ->
+                        meck:passthrough([Name, Profile])
                 end),
     {OriginalConfig, UpdatedConfig} =
         run_with("only_major.config", [{replace, true}, {just_deps, true}, {only, major}]),
@@ -225,13 +225,13 @@ only_override_config(_) ->
     meck:expect(dep_hex,
                 get_latest_vsn,
                 %% will update from 1.1.1 to 1.1.3
-                fun (will_update) ->
+                fun (will_update, _Profile) ->
                         <<"1.1.3">>;
                     %% willt update from 1.1.1 to 2.7.2
-                    (wont_update) ->
+                    (wont_update, _Profile) ->
                         <<"2.7.2">>;
-                    (Name) ->
-                        meck:passthrough([Name])
+                    (Name, Profile) ->
+                        meck:passthrough([Name, Profile])
                 end),
     {OriginalConfig, UpdatedConfig} =
         run_with("only_override.config", [{replace, true}, {just_deps, true}, {only, none}]),

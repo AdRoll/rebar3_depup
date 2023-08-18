@@ -121,16 +121,16 @@ update_deps(deps, [], _Profile, _Opts) ->
     [];
 update_deps(deps, Deps, _Profile, #{just_plugins := true}) ->
     Deps;
-update_deps(deps, Deps, _Profile, Opts) ->
-    dep_updater:update(Deps, Opts);
+update_deps(deps, Deps, Profile, Opts) ->
+    dep_updater:update(Deps, Profile, Opts);
 update_deps(plugins, Deps, _Profile, #{just_deps := true}) ->
     Deps;
-update_deps(plugins, Deps, _Profile, Opts) ->
-    dep_updater:update(Deps, Opts);
+update_deps(plugins, Deps, Profile, Opts) ->
+    dep_updater:update(Deps, Profile, Opts);
 update_deps(project_plugins, Deps, _Profile, #{just_deps := true}) ->
     Deps;
-update_deps(project_plugins, Deps, _Profile, Opts) ->
-    dep_updater:update(Deps, Opts);
+update_deps(project_plugins, Deps, Profile, Opts) ->
+    dep_updater:update(Deps, Profile, Opts);
 update_deps(profiles, Profiles, default, Opts) ->
     [{Profile, update_deps(Config, Profile, Opts)} || {Profile, Config} <- Profiles];
 update_deps(_Section, Data, _Profile, _Opts) ->
@@ -144,12 +144,13 @@ dump_or_print(Sections, RebarConfig, #{replace := true}) ->
             error;
         {ok, _} ->
             rebar_api:info("Dependencies updated in rebar.config."
-                           " Don't forget to run rebar3 upgrade.",
+                           " Don't forget to run rebar3 upgrade [-a] [<package>]",
                            []),
             ok
     end;
 dump_or_print(_, _, #{replace := false}) ->
-    rebar_api:info("After applying the changes listed above, don't forget to run rebar3 upgrade.",
+    rebar_api:info("After applying the changes listed above, don't forget"
+                   " to run rebar3 upgrade [-a] [<package>]",
                    []),
     ok.
 
