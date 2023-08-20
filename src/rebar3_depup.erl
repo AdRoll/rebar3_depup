@@ -1,3 +1,4 @@
+%% @private
 %%% @doc Main entry point for the rebar3 depup plugin
 -module(rebar3_depup).
 

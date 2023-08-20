@@ -7,4 +7,4 @@
   {env, []},
   {modules, []},
   {licenses, ["MIT"]},
-  {links, [{"github", "https://github.com/AdRoll/rebar3_depup"}]}]}.
+  {links, [{"GitHub", "https://github.com/AdRoll/rebar3_depup"}]}]}.

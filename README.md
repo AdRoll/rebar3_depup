@@ -1,4 +1,4 @@
-# rebar3_depup
+# rebar3_depup [![Erlang CI](https://github.com/AdRoll/rebar3_depup/actions/workflows/erlang.yml/badge.svg)](https://github.com/AdRoll/rebar3_depup/actions/workflows/erlang.yml)
 
 ## Dependency updater for rebar3 managed projects
 

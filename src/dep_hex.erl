@@ -1,3 +1,4 @@
+%% @private
 %% @doc Interface with hex.pm
 -module(dep_hex).
 
