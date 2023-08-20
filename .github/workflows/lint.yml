@@ -19,3 +19,12 @@ jobs:
           globs: |
             .github/**/*.md
             *.md
+
+      - name: yamllint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: |
+            .github/**/*.yml
+            .*.yml
+          strict: true
+          config_file: .yamllint.yml
