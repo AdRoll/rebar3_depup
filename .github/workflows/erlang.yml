@@ -47,4 +47,4 @@ jobs:
       - name: Format check
         run: rebar3 format --verify
       - name: Run tests and verifications
-        run: rebar3 test
+        run: rebar3 as test test
