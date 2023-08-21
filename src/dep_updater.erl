@@ -1,3 +1,4 @@
+%% @private
 %% @doc Core module of the system.
 %%      Updates a list of dependencies according to the provided options.
 -module(dep_updater).

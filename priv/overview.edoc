@@ -1,8 +1,0 @@
-** this is the overview.doc file for rebar3_depup **
-
-@author Brujo <brujo.benavides@nextroll.com>
-@title DepUp: Dependency Updater for rebar3 Projects
-@doc This project provides a rebar3 plugin to use the <code>rebar3 depup</code> command.
-     Use it to update your dependencies to their latest versions.
-
-@reference See <a target="_blank" href="https://github.com/AdRoll/rebar3_depup">our README</a> for more information.
