@@ -47,4 +47,4 @@ jobs:
       - name: Format check
         run: rebar3 fmt --check --verbose
       - name: Run tests and verifications
-        run: rebar3 as test test
+        run: rebar3 test
