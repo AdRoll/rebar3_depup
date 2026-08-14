@@ -1,10 +1,10 @@
-{application,
- rebar3_depup,
- [{description, "A rebar plugin to update dependencies"},
-  {vsn, git},
-  {registered, []},
-  {applications, [kernel, stdlib, hex_core, verl]},
-  {env, []},
-  {modules, []},
-  {licenses, ["MIT"]},
-  {links, [{"GitHub", "https://github.com/AdRoll/rebar3_depup"}]}]}.
+{application, rebar3_depup, [
+    {description, "A rebar plugin to update dependencies"},
+    {vsn, git},
+    {registered, []},
+    {applications, [kernel, stdlib, hex_core, verl]},
+    {env, []},
+    {modules, []},
+    {licenses, ["MIT"]},
+    {links, [{"GitHub", "https://github.com/AdRoll/rebar3_depup"}]}
+]}.

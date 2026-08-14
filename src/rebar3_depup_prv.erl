@@ -1,61 +1,45 @@
-%%% @doc Plugin provider for rebar3 depup.
-%%% @private
 -module(rebar3_depup_prv).
+-moduledoc false.
 
 -export([init/1, do/1, format_error/1]).
 
-%% @private
+-doc false.
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     Provider =
-        providers:create([{name, 'update-deps'},
-                          {module, rebar3_depup_prv},
-                          {bare, true},
-                          {deps, []},
-                          {example, "rebar3 update-deps"},
-                          {opts, opts()},
-                          {short_desc, "A rebar plugin to update dependencies"},
-                          {desc, "A rebar plugin to update dependencies"}]),
+        providers:create([
+            {name, 'update-deps'},
+            {module, rebar3_depup_prv},
+            {bare, true},
+            {deps, []},
+            {example, "rebar3 update-deps"},
+            {opts, opts()},
+            {short_desc, "A rebar plugin to update dependencies"},
+            {desc, "A rebar plugin to update dependencies"}
+        ]),
     {ok, rebar_state:add_provider(State, Provider)}.
 
 opts() ->
-    [{replace,
-      $r,
-      "replace",
-      {boolean, false},
-      "Directly replace values in rebar.config."
-      " The default is to just show you what deps can be updated"
-      " because this is an experimental feature and using it can mess up"
-      " your formatting and comments."},
-     {rebar_config, $c, "rebar-config", {string, "rebar.config"}, "File to analyze"},
-     {update_approx,
-      $a,
-      "update-approx",
-      {boolean, true},
-      "Update requirements starting with '~>' as well as the ones with a specific version."},
-     {just_deps,
-      $d,
-      "just-deps",
-      {boolean, false},
-      "Only update deps (i.e. ignore plugins and project_plugins)."},
-     {just_plugins,
-      $p,
-      "just-plugins",
-      {boolean, false},
-      "Only update plugins and project_plugins (i.e. ignore deps)."},
-     {just_hex,
-      $h,
-      "just-hex",
-      {boolean, false},
-      "Only update hex packages, ignore git repos."},
-     {ignore, $i, "ignore", atom, "Ignore dep when updating (can be repeated)."},
-     {only,
-      $o,
-      "only",
-      {atom, none},
-      "Only update if the specified SemVer component (major, minor, or patch) has changed."}].
+    [
+        {replace, $r, "replace", {boolean, false},
+            "Directly replace values in rebar.config."
+            " The default is to just show you what deps can be updated"
+            " because this is an experimental feature and using it can mess up"
+            " your formatting and comments."},
+        {rebar_config, $c, "rebar-config", {string, "rebar.config"}, "File to analyze"},
+        {update_approx, $a, "update-approx", {boolean, true},
+            "Update requirements starting with '~>' as well as the ones with a specific version."},
+        {just_deps, $d, "just-deps", {boolean, false},
+            "Only update deps (i.e. ignore plugins and project_plugins)."},
+        {just_plugins, $p, "just-plugins", {boolean, false},
+            "Only update plugins and project_plugins (i.e. ignore deps)."},
+        {just_hex, $h, "just-hex", {boolean, false}, "Only update hex packages, ignore git repos."},
+        {ignore, $i, "ignore", atom, "Ignore dep when updating (can be repeated)."},
+        {only, $o, "only", {atom, none},
+            "Only update if the specified SemVer component (major, minor, or patch) has changed."}
+    ].
 
-%% @private
+-doc false.
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, iodata()}.
 do(State) ->
     Opts = parse_opts(State),
@@ -78,17 +62,21 @@ do(State) ->
                         error ->
                             ok = file:write_file(RebarConfig ++ ".backup", Backup),
                             {error,
-                             io_lib:format("~ts was broken. Backup saved as ~ts.backup.",
-                                           [RebarConfig, RebarConfig])}
+                                io_lib:format(
+                                    "~ts was broken. Backup saved as ~ts.backup.",
+                                    [RebarConfig, RebarConfig]
+                                )}
                     end
             end
     end.
 
-%% @private
--spec format_error(any()) -> binary().
+-doc false.
+-spec format_error(term()) -> binary().
 format_error(Reason) ->
-    case unicode:characters_to_binary(
-             io_lib:format("~tp", [Reason]))
+    case
+        unicode:characters_to_binary(
+            io_lib:format("~tp", [Reason])
+        )
     of
         {_Error, Bin, _Rest} ->
             Bin;
@@ -99,17 +87,21 @@ format_error(Reason) ->
 parse_opts(State) ->
     {Args, _} = rebar_state:command_parsed_args(State),
     IgnoreList =
-        lists:usort(proplists:get_all_values(ignore, Args)
-                    ++ proplists:get_value(ignore, rebar_state:get(State, depup, []), [])),
+        lists:usort(
+            proplists:get_all_values(ignore, Args) ++
+                proplists:get_value(ignore, rebar_state:get(State, depup, []), [])
+        ),
     Only = proplists:get_value(only, rebar_state:get(State, depup, []), none),
-    #{replace => proplists:get_value(replace, Args),
-      rebar_config => proplists:get_value(rebar_config, Args),
-      update_approx => proplists:get_value(update_approx, Args),
-      just_deps => proplists:get_value(just_deps, Args),
-      just_plugins => proplists:get_value(just_plugins, Args),
-      just_hex => proplists:get_value(just_hex, Args),
-      ignore => IgnoreList,
-      only => proplists:get_value(only, Args, Only)}.
+    #{
+        replace => proplists:get_value(replace, Args),
+        rebar_config => proplists:get_value(rebar_config, Args),
+        update_approx => proplists:get_value(update_approx, Args),
+        just_deps => proplists:get_value(just_deps, Args),
+        just_plugins => proplists:get_value(just_plugins, Args),
+        just_hex => proplists:get_value(just_hex, Args),
+        ignore => IgnoreList,
+        only => proplists:get_value(only, Args, Only)
+    }.
 
 update_deps(Config, Opts) ->
     update_deps(Config, default, Opts).
@@ -143,15 +135,19 @@ dump_or_print(Sections, RebarConfig, #{replace := true}) ->
         {error, _} ->
             error;
         {ok, _} ->
-            rebar_api:info("Dependencies updated in rebar.config."
-                           " Don't forget to run rebar3 upgrade [-a] [<package>]",
-                           []),
+            rebar_api:info(
+                "Dependencies updated in rebar.config."
+                " Don't forget to run rebar3 upgrade [-a] [<package>]",
+                []
+            ),
             ok
     end;
 dump_or_print(_, _, #{replace := false}) ->
-    rebar_api:info("After applying the changes listed above, don't forget"
-                   " to run rebar3 upgrade [-a] [<package>]",
-                   []),
+    rebar_api:info(
+        "After applying the changes listed above, don't forget"
+        " to run rebar3 upgrade [-a] [<package>]",
+        []
+    ),
     ok.
 
 format(Sections, _RebarConfig, []) ->
@@ -165,13 +161,17 @@ format(Sections, RebarConfig, Comments) ->
         Comments ->
             ok;
         NewComments ->
-            rebar_api:warn("Some comments could've been lost or misplaced."
-                           " We moved from ~p to ~p",
-                           [length(Comments), length(NewComments)])
+            rebar_api:warn(
+                "Some comments could've been lost or misplaced."
+                " We moved from ~p to ~p",
+                [length(Comments), length(NewComments)]
+            )
     end,
     Formatted.
 
-%% @doc Turns rebar.config sections into "a module" that can be parsed with epp_dodger.
+-doc """
+Turns rebar.config sections into "a module" that can be parsed with `epp_dodger`.
+""".
 fake_ast(RebarConfig, Sections) ->
     TmpFilename =
         RebarConfig ++ ".depup_" ++ integer_to_list(erlang:unique_integer([positive])) ++ ".tmp",

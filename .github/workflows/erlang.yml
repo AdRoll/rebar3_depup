@@ -14,8 +14,8 @@ jobs:
 
     strategy:
       matrix:
-        otp: ["25", "26", "27"]
-        rebar: ["3.24"]
+        otp: ["27", "28", "29"]
+        rebar: ["3.27"]
 
     steps:
       - uses: actions/checkout@v3
@@ -45,6 +45,6 @@ jobs:
       - name: Compile
         run: rebar3 compile
       - name: Format check
-        run: rebar3 format --verify
+        run: rebar3 fmt --check --verbose
       - name: Run tests and verifications
-        run: rebar3 as test test
+        run: rebar3 test

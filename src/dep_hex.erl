@@ -1,13 +1,12 @@
-%% @private
-%% @doc Interface with hex.pm
 -module(dep_hex).
+-moduledoc false.
 
 -behaviour(hex_http).
 
--export([request/5]).
+-export([request/5, request_to_file/6]).
 -export([get_latest_vsn/2]).
 
-%% @doc Returns the latest version of a package in hex.pm
+-doc "Returns the latest version of a package in hex.pm".
 -spec get_latest_vsn(atom(), atom()) -> binary() | undefined.
 get_latest_vsn(Name, Profile) ->
     case hex_repo:get_package(config(), atom_to_binary(Name, utf8)) of
@@ -16,8 +15,9 @@ get_latest_vsn(Name, Profile) ->
         {ok, {200, _, Versions}} ->
             lists:last([Version || #{version := Version} <- Versions]);
         Other ->
-            rebar_api:warn("Couldn't fetch latest version of ~p (profile ~p) from hex.pm:\n~p",
-                           [Name, Profile, Other]),
+            rebar_api:warn("Couldn't fetch latest version of ~p (profile ~p) from hex.pm:\n~p", [
+                Name, Profile, Other
+            ]),
             undefined
     end.
 
@@ -28,8 +28,10 @@ config() ->
     Config3.
 
 put_http_config(Config) ->
-    Config#{http_user_agent_fragment => <<"(rebar3_depup/0.0.1) (httpc)">>,
-            http_adapter => {?MODULE, #{}}}.
+    Config#{
+        http_user_agent_fragment => ~"(rebar3_depup/0.0.1) (httpc)",
+        http_adapter => {?MODULE, #{}}
+    }.
 
 maybe_put_api_key(Config) ->
     case os:getenv("HEX_API_KEY") of
@@ -39,7 +41,7 @@ maybe_put_api_key(Config) ->
             maps:put(api_key, Key, Config)
     end.
 
-%% @private
+-doc false.
 request(Method, URI, ReqHeaders, Body, _AdapterConfig) ->
     Request = build_request(URI, ReqHeaders, Body),
     SSLOpts = [{ssl, rebar_utils:ssl_opts(URI)}],
@@ -64,3 +66,5 @@ build_request2(URI, ReqHeaders, {ContentType, Body}) ->
 
 dump_headers(Map) ->
     maps:fold(fun(K, V, Acc) -> [{binary_to_list(K), binary_to_list(V)} | Acc] end, [], Map).
+
+request_to_file(_, _, _, _, _, _) -> {error, not_implemented}.
