@@ -13,6 +13,12 @@
 
 -export([update/3]).
 
+-ifdef(TEST).
+
+-export([latest_tag/1]).
+
+-endif.
+
 -doc """
 Updates each updatable dependency in Deps.
 It will update all hex packages with fixed or similar (`~>`)
@@ -94,26 +100,13 @@ maybe_update_hex_dep(Vsn, Package, Profile, Opts) ->
 maybe_update_git_dep(Name, {git, Repo, {tag, Vsn}}, Dep, Profile, Opts) ->
     GitCmd =
         lists:flatten(
-            io_lib:format("git ls-remote --sort=v:refname --refs --tags ~p '*.*.*'", [Repo])
+            io_lib:format("git ls-remote --refs --tags ~p '*.*.*'", [Repo])
         ),
     LatestVsn =
         case rebar_utils:sh(GitCmd, [return_on_error]) of
-            {ok, ""} ->
-                rebar_api:info(
-                    "Latest version for ~p (profile ~p) not found, keeping ~ts",
-                    [Name, Profile, Vsn]
-                ),
-                Vsn;
             {ok, GitResult} ->
-                LastTag =
-                    lists:last(
-                        string:tokens(GitResult, [$\n])
-                    ),
-                NewVsn =
-                    lists:last(
-                        string:tokens(LastTag, [$/])
-                    ),
-                latest_version(Name, Vsn, iolist_to_binary(NewVsn), Profile, Opts);
+                NewVsn = latest_tag(string:tokens(GitResult, [$\n])),
+                latest_version(Name, Vsn, NewVsn, Profile, Opts);
             {error, {_Code, Msg}} ->
                 rebar_api:warn(Msg ++ "===> Skipping ~p (profile ~p)", [Name, Profile]),
                 Dep
@@ -125,6 +118,43 @@ maybe_update_git_dep(Name, _Source, Dep, Profile, _Opts) ->
         [Name, Profile]
     ),
     Dep.
+
+-doc """
+Highest semver tag in `git ls-remote` output, `undefined` if there is none.
+We sort here instead of with git's `--sort=v:refname` because that one
+orders refnames as text, so any tag that is not plain semver (e.g. v1.6.0)
+lands after the actual latest one (e.g. 5.3.1).
+""".
+latest_tag(Refs) ->
+    Versions =
+        lists:filtermap(
+            fun(Ref) ->
+                Tag = iolist_to_binary(
+                    lists:last(
+                        string:tokens(Ref, [$/])
+                    )
+                ),
+                Vsn = unprefix(Tag),
+                case verl:parse(Vsn) of
+                    {ok, _} ->
+                        {true, {Vsn, Tag}};
+                    {error, _} ->
+                        false
+                end
+            end,
+            Refs
+        ),
+    case lists:sort(fun({V1, _}, {V2, _}) -> verl:compare(V1, V2) =/= gt end, Versions) of
+        [] ->
+            undefined;
+        Sorted ->
+            element(2, lists:last(Sorted))
+    end.
+
+unprefix(<<"v", Vsn/binary>>) ->
+    Vsn;
+unprefix(Vsn) ->
+    Vsn.
 
 parse_versions(Current, Latest) ->
     case verl:parse(iolist_to_binary(Current)) of
@@ -180,8 +210,14 @@ check_only(_Current, Latest, _) ->
     {ok, Latest}.
 
 -spec latest_version
-    (atom(), binary(), binary(), atom(), opts()) -> binary();
-    (atom(), string(), binary(), atom(), opts()) -> string().
+    (atom(), binary(), binary() | undefined, atom(), opts()) -> binary();
+    (atom(), string(), binary() | undefined, atom(), opts()) -> string().
+latest_version(Name, Vsn, undefined, Profile, _Opts) ->
+    rebar_api:info(
+        "Latest version for ~p (profile ~p) not found, keeping ~ts",
+        [Name, Profile, Vsn]
+    ),
+    Vsn;
 latest_version(Name, Vsn, NewVsn, Profile, Opts) when is_list(Vsn) ->
     BinVsn = iolist_to_binary(Vsn),
     case latest_version(Name, BinVsn, NewVsn, Profile, Opts) of

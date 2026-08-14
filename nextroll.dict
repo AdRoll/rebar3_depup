@@ -15,6 +15,7 @@ depup
 just-deps
 just-hex
 just-plugins
+ls-remote
 rebar-config
 update-approx
 update-deps
