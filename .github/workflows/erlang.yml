@@ -45,6 +45,6 @@ jobs:
       - name: Compile
         run: rebar3 compile
       - name: Format check
-        run: rebar3 format --verify
+        run: rebar3 fmt --check --verbose
       - name: Run tests and verifications
         run: rebar3 as test test

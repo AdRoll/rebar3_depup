@@ -107,7 +107,7 @@ update_deps(Config, Opts) ->
     update_deps(Config, default, Opts).
 
 update_deps(Config, Profile, Opts) ->
-    [{Section, update_deps(Section, Data, Profile, Opts)} || {Section, Data} <:- Config].
+    [{Section, update_deps(Section, Data, Profile, Opts)} || {Section, Data} <- Config].
 
 update_deps(deps, [], _Profile, _Opts) ->
     [];
@@ -124,7 +124,7 @@ update_deps(project_plugins, Deps, _Profile, #{just_deps := true}) ->
 update_deps(project_plugins, Deps, Profile, Opts) ->
     dep_updater:update(Deps, Profile, Opts);
 update_deps(profiles, Profiles, default, Opts) ->
-    [{Profile, update_deps(Config, Profile, Opts)} || {Profile, Config} <:- Profiles];
+    [{Profile, update_deps(Config, Profile, Opts)} || {Profile, Config} <- Profiles];
 update_deps(_Section, Data, _Profile, _Opts) ->
     Data.
 
