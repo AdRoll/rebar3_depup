@@ -16,7 +16,8 @@
     only_patch/1,
     only_minor/1,
     only_major/1,
-    only_override_config/1
+    only_override_config/1,
+    latest_tag/1
 ]).
 
 -behaviour(ct_suite).
@@ -37,8 +38,29 @@ all() ->
         only_patch,
         only_minor,
         only_major,
-        only_override_config
+        only_override_config,
+        latest_tag
     ].
+
+-doc """
+The highest semver tag wins, whatever order git lists the refs in.
+""".
+latest_tag(_) ->
+    %% Tags that are not plain semver don't hide the latest one.
+    ~"5.3.1" =
+        dep_updater:latest_tag(refs(["1.0.0", "v1.6.0", "5.3.1", "not-a-version", "2.0.0-rc1"])),
+    %% Versions are compared as numbers, not as text.
+    ~"10.0.0" = dep_updater:latest_tag(refs(["9.0.0", "10.0.0"])),
+    %% Repos tagging with a v prefix keep it in the result.
+    ~"v2.0.0" = dep_updater:latest_tag(refs(["v2.0.0", "v1.9.9"])),
+    %% Pre-releases are older than their final version.
+    ~"1.0.0" = dep_updater:latest_tag(refs(["1.0.0", "1.0.0-rc1"])),
+    undefined = dep_updater:latest_tag(refs(["not-a-version"])),
+    undefined = dep_updater:latest_tag([]),
+    ok.
+
+refs(Tags) ->
+    ["deadbeef\trefs/tags/" ++ Tag || Tag <- Tags].
 
 -doc """
 Can't find `not_found.config`
